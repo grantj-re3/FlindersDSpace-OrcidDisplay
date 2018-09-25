@@ -429,7 +429,27 @@
                 <xsl:attribute name="class"><xsl:text>ds-dc_contributor_author-authority</xsl:text></xsl:attribute>
             </xsl:if>
             <xsl:copy-of select="node()"/>
+            <xsl:call-template name="itemSummaryView-DIM-authors-append-orcid" />
         </div>
+    </xsl:template>
+
+    <!-- CUSTOMISATION: Lookup ORCID (using author name as the key) in
+         "local.contributor.authorOrcidLookup" fields. If a match is
+         found, append ORCID logo with ORCID-hyperlink. Format of
+         "local.contributor.authorOrcidLookup" is "AUTHOR: ORCID-URL"
+    -->
+    <xsl:template name="itemSummaryView-DIM-authors-append-orcid">
+        <xsl:variable name="delim" select="':'"/>
+        <xsl:variable name="author" select="." />
+        <xsl:variable name="lookup_author_orcid" select="../dim:field[@element='contributor'][@qualifier='authorOrcidLookup']
+            [substring-before(node(), $delim) = $author][1]" />
+        <!-- FIXME: More robust predicate for match, but potentially worse performance.
+            [normalize-space(substring-before(translate(node(), $uppercase, $lowercase), $delim)) = $author_lowercase][1]
+        -->
+        <xsl:if test="$lookup_author_orcid">
+            <xsl:variable name="orcid_url" select="normalize-space(substring-after($lookup_author_orcid, $delim))" />
+            <a href="{$orcid_url}" target="_blank"> <img src="{$theme-path}images/orcid.png"></img> </a>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="itemSummaryView-DIM-URI">
