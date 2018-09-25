@@ -39,6 +39,117 @@
 
     <xsl:output indent="yes"/>
 
+    <!--
+        CUSTOMISATION:
+        For altmetrics in a test environment, these variables allow you to
+        convert a test handle-prefix (eg. '123456789') to a production
+        handle-prefix (eg. '1111') by setting:
+        - hdl_prefix_to_match='123456789'
+        - hdl_prefix_to_show='1111'
+        So if your test environment has a copy of production items, altmetrics
+        should give genuine stats for handles.
+        For altmetrics in a production environment, set both variables to the
+        production handle-prefix (eg. '1111').
+    -->
+    <xsl:variable name="hdl_prefix_to_match" select="'123456789'" />
+    <xsl:variable name="hdl_prefix_to_show"  select="'1111'" />
+
+    <!--
+        CUSTOMISATION: For the collection of nodes in $xpath, find the
+        *first* text-node which matches $match_with (case-sensitive) then
+        extract the text which follows the $match_with text. Return the
+        extracted text with the prefix $out_prefix, else return an empty string.
+    -->
+    <xsl:template name="get_what_follows">
+        <xsl:param name="xpath"/>
+        <xsl:param name="match_with"/>
+        <xsl:param name="out_prefix" select="''"/>
+
+        <xsl:variable name="value1" select="$xpath[substring-after(., $match_with)][1]" />
+        <xsl:choose>
+            <xsl:when test="$value1 = ''">
+                <xsl:value-of select="''"/>
+            </xsl:when>
+
+            <xsl:otherwise>
+                <xsl:value-of select="concat($out_prefix, normalize-space(substring-after($value1, $match_with)))"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <!--
+        CUSTOMISATION: For dc.identifier.uri nodes, return:
+        - the handle associated with the first node matching '(http:|https:|.*)//hdl.handle.net/HDL_PREFIX/', else
+        - the empty string
+    -->
+    <xsl:template name="extract_handle_id">
+        <xsl:call-template name="get_what_follows">
+            <xsl:with-param name="xpath" select="dim:field[@element='identifier'][@qualifier='uri']"/>
+            <xsl:with-param name="match_with" select="concat('//hdl.handle.net/', $hdl_prefix_to_match, '/')"/>
+            <xsl:with-param name="out_prefix" select="concat($hdl_prefix_to_show, '/')"/>
+        </xsl:call-template>
+    </xsl:template>
+
+    <!--
+        CUSTOMISATION: For dc.identifier.doi nodes, return:
+        - the DOI associated with the first node matching '(http:|https:|.*)//dx.doi.org/', else
+        - the DOI associated with the first node matching '(http:|https:|.*)//doi.org/', else
+        - the DOI associated with the first node matching '(.*)doi:', else
+        - the empty string
+    -->
+    <xsl:template name="extract_doi_id">
+        <xsl:variable name="doi_xpath" select="dim:field[@element='identifier'][@qualifier='doi']"/>
+        <xsl:variable name="doi1">
+            <xsl:call-template name="get_what_follows">
+                <xsl:with-param name="xpath" select="$doi_xpath"/>
+                <xsl:with-param name="match_with" select="'//dx.doi.org/'"/>
+            </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:choose>
+            <xsl:when test="not($doi1 = '')">
+                <xsl:value-of select="$doi1"/>
+            </xsl:when>
+
+            <xsl:otherwise>
+                <xsl:variable name="doi2">
+                    <xsl:call-template name="get_what_follows">
+                        <xsl:with-param name="xpath" select="$doi_xpath"/>
+                        <xsl:with-param name="match_with" select="'//doi.org/'"/>
+                    </xsl:call-template>
+                </xsl:variable>
+
+                <xsl:choose>
+                    <xsl:when test="not($doi2 = '')">
+                        <xsl:value-of select="$doi2"/>
+                    </xsl:when>
+
+                    <xsl:otherwise>
+                        <xsl:variable name="doi3">
+                            <xsl:call-template name="get_what_follows">
+                                <xsl:with-param name="xpath" select="$doi_xpath"/>
+                                <xsl:with-param name="match_with" select="'doi:'"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+
+                        <xsl:choose>
+                            <xsl:when test="not($doi3 = '')">
+                                <xsl:value-of select="$doi3"/>
+                            </xsl:when>
+
+                            <xsl:otherwise>
+                                <xsl:value-of select="''"/>
+                            </xsl:otherwise>
+                        </xsl:choose>		<!-- doi3 -->
+
+                    </xsl:otherwise>
+                </xsl:choose>			<!-- doi2 -->
+
+            </xsl:otherwise>
+        </xsl:choose>				<!-- doi1 -->
+    </xsl:template>
+
+
     <xsl:template name="itemSummaryView-DIM">
         <!-- Generate the info about the item from the metadata section -->
         <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap[@OTHERMDTYPE='DIM']/mets:xmlData/dim:dim"
@@ -104,6 +215,22 @@
 
 
     <xsl:template match="dim:dim" mode="itemSummaryView-DIM">
+        <!-- CUSTOMISATION for altmetrics -->
+        <xsl:variable name="id_doi">
+            <xsl:call-template name="extract_doi_id"/>
+        </xsl:variable>
+        <xsl:variable name="id_handle">
+            <xsl:call-template name="extract_handle_id"/>
+        </xsl:variable>
+
+        <!-- optional: Altmeric.com badge and PlumX widget -->
+        <xsl:if test="confman:getProperty('altmetrics', 'altmetric.enabled') and (not($id_doi='') or not($id_handle=''))">
+            <xsl:call-template name="impact-altmetric">
+                <xsl:with-param name="identifier_doi"    select="$id_doi" />
+                <xsl:with-param name="identifier_handle" select="$id_handle" />
+            </xsl:call-template>
+        </xsl:if>
+
         <div class="item-summary-view-metadata">
             <xsl:call-template name="itemSummaryView-DIM-title"/>
             <div class="row">
@@ -124,8 +251,12 @@
                 </div>
                 <div class="col-sm-8">
                     <xsl:call-template name="itemSummaryView-DIM-abstract"/>
+                    <xsl:call-template name="itemSummaryView-DIM-description"/>
                     <xsl:call-template name="itemSummaryView-DIM-URI"/>
                     <xsl:call-template name="itemSummaryView-collections"/>
+                    <!-- DEBUG: Show the input XML document
+                    <xsl:call-template name="itemSummaryView-DIM-XmlDoc"/>
+                    -->
                 </div>
             </div>
         </div>
@@ -200,10 +331,37 @@
         </div>
     </xsl:template>
 
+    <!-- CUSTOMISATION -->
+    <xsl:template name="itemSummaryView-DIM-description">
+        <xsl:if test="dim:field[@element='description'][not(@qualifier)]">
+            <div class="simple-item-view-description item-page-field-wrapper table">
+                <h5><i18n:text>xmlui.dri2xhtml.METS-1.0.item-description</i18n:text></h5>
+                <div>
+                    <xsl:for-each select="dim:field[@element='description'][not(@qualifier)]">
+                        <xsl:choose>
+                            <xsl:when test="node()">
+                                <xsl:copy-of select="node()"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:text>&#160;</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                        <xsl:if test="count(following-sibling::dim:field[@element='description'][not(@qualifier)]) != 0">
+                            <div class="spacer">&#160;</div>
+                        </xsl:if>
+                    </xsl:for-each>
+                    <xsl:if test="count(dim:field[@element='description'][not(@qualifier)]) &gt; 1">
+                        <div class="spacer">&#160;</div>
+                    </xsl:if>
+                </div>
+            </div>
+        </xsl:if>
+    </xsl:template>
+
     <xsl:template name="itemSummaryView-DIM-abstract">
         <xsl:if test="dim:field[@element='description' and @qualifier='abstract']">
             <div class="simple-item-view-description item-page-field-wrapper table">
-                <h5 class="visible-xs"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-abstract</i18n:text></h5>
+                <h5><i18n:text>xmlui.dri2xhtml.METS-1.0.item-abstract</i18n:text></h5>
                 <div>
                     <xsl:for-each select="dim:field[@element='description' and @qualifier='abstract']">
                         <xsl:choose>
@@ -224,6 +382,17 @@
                 </div>
             </div>
         </xsl:if>
+    </xsl:template>
+
+    <!-- DEBUG: Show the input XML document
+         XPathToDC = /mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[...]
+    -->
+    <xsl:template name="itemSummaryView-DIM-XmlDoc">
+        <div class="simple-item-view-description item-page-field-wrapper table">
+            <h5><i18n:text>Begin-input-XML-doc</i18n:text></h5>
+            <xsl:copy-of select="/" />
+            <h5><i18n:text>End-input-XML-doc</i18n:text></h5>
+        </div>
     </xsl:template>
 
     <xsl:template name="itemSummaryView-DIM-authors">
@@ -740,5 +909,57 @@
         <i18n:text i18n:key="{$mimetype-key}"><xsl:value-of select="$mimetype"/></i18n:text>
     </xsl:template>
 
+    <!-- CUSTOMISATION for altmetrics -->
+    <xsl:template name='impact-altmetric'>
+        <xsl:param name="identifier_doi"/>
+        <xsl:param name="identifier_handle"/>
+
+        <div id='impact-altmetric'>
+            <!-- Altmetric.com -->
+            <script type="text/javascript" src="{concat('//', 'd1bxh8uas1mnw7.cloudfront.net/assets/embed.js')}">&#xFEFF;
+            </script>
+            <div id='altmetric'
+                 class='altmetric-embed'>
+                <xsl:variable name='badge_type' select='confman:getProperty("altmetrics", "altmetric.badgeType")'/>
+                <xsl:if test='boolean($badge_type)'>
+                    <xsl:attribute name='data-badge-type'><xsl:value-of select='$badge_type'/></xsl:attribute>
+                </xsl:if>
+
+                <xsl:variable name='badge_popover' select='confman:getProperty("altmetrics", "altmetric.popover")'/>
+                <xsl:if test='$badge_popover'>
+                    <xsl:attribute name='data-badge-popover'><xsl:value-of select='$badge_popover'/></xsl:attribute>
+                </xsl:if>
+
+                <xsl:variable name='badge_details' select='confman:getProperty("altmetrics", "altmetric.details")'/>
+                <xsl:if test='$badge_details'>
+                    <xsl:attribute name='data-badge-details'><xsl:value-of select='$badge_details'/></xsl:attribute>
+                </xsl:if>
+
+                <xsl:variable name='no_score' select='confman:getProperty("altmetrics", "altmetric.noScore")'/>
+                <xsl:if test='$no_score'>
+                    <xsl:attribute name='data-no-score'><xsl:value-of select='$no_score'/></xsl:attribute>
+                </xsl:if>
+
+                <xsl:if test='confman:getProperty("altmetrics", "altmetric.hideNoMentions")'>
+                    <xsl:attribute name='data-hide-no-mentions'>true</xsl:attribute>
+                </xsl:if>
+
+                <xsl:variable name='link_target' select='confman:getProperty("altmetrics", "altmetric.linkTarget")'/>
+                <xsl:if test='$link_target'>
+                    <xsl:attribute name='data-link-target'><xsl:value-of select='$link_target'/></xsl:attribute>
+                </xsl:if>
+
+                <xsl:choose>    <!-- data-doi data-handle data-arxiv-id data-pmid -->
+                    <xsl:when test='not($identifier_doi="")'>
+                        <xsl:attribute name='data-doi'><xsl:value-of select='$identifier_doi'/></xsl:attribute>
+                    </xsl:when>
+                    <xsl:when test='not($identifier_handle="")'>
+                        <xsl:attribute name='data-handle'><xsl:value-of select='$identifier_handle'/></xsl:attribute>
+                    </xsl:when>
+                </xsl:choose>
+                &#xFEFF;
+            </div>
+        </div>
+    </xsl:template>
 
 </xsl:stylesheet>
