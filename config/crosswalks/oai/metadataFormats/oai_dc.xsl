@@ -47,6 +47,11 @@
 			<xsl:for-each select="doc:metadata/doc:element[@name='dc']/doc:element[@name='contributor']/doc:element/doc:field[@name='value']">
 				<dc:contributor><xsl:value-of select="." /></dc:contributor>
 			</xsl:for-each>
+			<!-- CUSTOMISATION: dc.contributor for ORCID-URL. Format of
+			     "local.contributor.authorOrcidLookup" is "AUTHOR: ORCID-URL" -->
+			<xsl:for-each select="doc:metadata/doc:element[@name='local']/doc:element[@name='contributor']/doc:element[@name='authorOrcidLookup']/doc:element/doc:field[@name='value']">
+				<dc:relation><xsl:value-of select="normalize-space(substring-after(., ':'))" /></dc:relation>
+			</xsl:for-each>
 			<!-- dc.subject -->
 			<xsl:for-each select="doc:metadata/doc:element[@name='dc']/doc:element[@name='subject']/doc:element/doc:field[@name='value']">
 				<dc:subject><xsl:value-of select="." /></dc:subject>
