@@ -50,6 +50,19 @@
        </field>
 
        <field>
+         <dc-schema>local</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>authorOrcidLookup</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Author:ORCID-URL Lookup</label>
+         <input-type>onebox</input-type>
+         <hint>This field allows an ORCID-URL to be associated with an author name. An
+           author name entered here is a lookup-key so must match a name in the 'Authors'
+           section above, e.g. 'Smith, Donald Jr: https://orcid.org/0000-1111-2222-333X'</hint>
+         <required></required>
+       </field>
+
+       <field>
          <dc-schema>dc</dc-schema>
          <dc-element>title</dc-element>
          <dc-qualifier></dc-qualifier>
