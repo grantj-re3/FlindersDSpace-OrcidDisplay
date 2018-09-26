@@ -288,6 +288,10 @@
                 <xsl:value-of select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='xhtml_head_item']"
                               disable-output-escaping="yes"/>
             </xsl:if>
+            <xsl:call-template name="showOrcidHeadMetaTags"/>
+            <!-- DEBUG
+            <xsl:call-template name="showDebugXmlDocs"/>
+            -->
 
             <!-- Add all Google Scholar Metadata values -->
             <xsl:for-each select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[substring(@element, 1, 9) = 'citation_']">
@@ -582,6 +586,41 @@
                 </xsl:otherwise>
             </xsl:choose>
         </li>
+    </xsl:template>
+
+    <!-- DEBUG: Show METS & dri:metadata documents.
+         externalMetadataURL = 'cocoon://metadata/handle/PREFIX/SUFFIX/mets.xml'
+         XPathToDC = document($externalMetadataURL)/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[...]
+    -->
+    <xsl:template name="showDebugXmlDocs">
+        <meta content="********** request-uri = '{$request-uri}' **********" name="NOTICE"/>
+
+        <meta content="********** Begin METS-XML-doc **********" name="NOTICE"/>
+        <xsl:if test="starts-with($request-uri, 'handle/')">
+            <xsl:variable name="externalMetadataURL" select="concat('cocoon://metadata/', $request-uri, '/mets.xml')"/>
+            <xsl:copy-of select="document($externalMetadataURL)" />
+        </xsl:if>
+        <meta content="********** End METS-XML-doc **********" name="NOTICE"/>
+
+        <meta content="********** Begin dri:metadata **********" name="NOTICE"/>
+        <xsl:for-each select="/dri:document/dri:meta/dri:pageMeta/dri:metadata">
+            <meta name="{@element}" content="{.}"/>
+        </xsl:for-each>
+        <meta content="********** End dri:metadata **********" name="NOTICE"/>
+    </xsl:template>
+
+    <!-- CUSTOMISATION: Show ORCID-URLs in html-head META tags.
+         Format of "local.contributor.authorOrcidLookup" is "AUTHOR: ORCID-URL"
+    -->
+    <xsl:template name="showOrcidHeadMetaTags">
+        <xsl:if test="starts-with($request-uri, 'handle/')">
+            <!-- externalMetadataURL = 'cocoon://metadata/handle/PREFIX/SUFFIX/mets.xml' -->
+            <xsl:variable name="externalMetadataURL" select="concat('cocoon://metadata/', $request-uri, '/mets.xml')"/>
+
+            <xsl:for-each select="document($externalMetadataURL)/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='contributor'][@qualifier='authorOrcidLookup']">
+                <meta content="{normalize-space(substring-after(., ':'))}" name="DC.relation"/>
+            </xsl:for-each>
+        </xsl:if>
     </xsl:template>
 
     <!--The License-->
