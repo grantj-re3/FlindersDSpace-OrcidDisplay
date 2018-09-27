@@ -6,6 +6,7 @@ FlindersDSpace-OrcidDisplay
 Workaround to display the ORCID® of any author (including the Chief
 Investigator A) in DSpace. 
 
+This Github repository supersedes [grantj-re3/FlindersDSpace-OrcidCIA](/grantj-re3/FlindersDSpace-OrcidCIA).
 
 ## Background
 
@@ -42,7 +43,7 @@ References:
 - https://www.nhmrc.gov.au/_files_nhmrc/file/research/nhmrc_open_access_policy_15_january_2018_v2.pdf
 - https://groups.google.com/forum/#!topic/dspace-tech/HO_4e-WYjjo
 - https://jira.duraspace.org/browse/DS-3447
-- https://support.orcid.org/knowledgebase/articles/116780-structure-of-the-orcid-identifier
+- https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
 - https://groups.google.com/forum/#!topic/dspace-tech/4nJRVyn8Hk8
 
 
@@ -77,19 +78,20 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
 - For each author to be associated with an ORCID (e.g. Chief Investigators
   and/or authors at your institution) enter a separate field
   (local.contributor.authorOrcidLookup) containing the ORCID-URL with
-  author-name as the lookup key, eg.
+  author as the lookup key in the format "AUTHOR: ORCID-URL" (where colon
+  ":" is the delimiter between the author (key) and the ORCID-URL). E.g.
   "Smith, Donald Jr: https://orcid.org/0000-1111-2222-333X". Dublin Core
   schema fields (ie. dc.xxx.yyy) appear directly in item page META-tags
   and OAI-PMH harvests. Because we do not want this behaviour for our
   new field (we only want the ORCID-URL component from this field to
   appear *indirectly*) the new field was created within a different
   schema (i.e. "local").
-- [%] In the data entry submission form, add the
+- <sup>[1](#fn1)</sup> In the data entry submission form, add the
   local.contributor.authorOrcidLookup entry-field directly beneath
   the author entry-field so it is easy to copy-and-paste author names
   from one field to the other (since they must be identical for the
   lookup-by-author key to behave correctly). [See config/input-forms.xml]
-- [%] On the Simple Item Record page, against any author which has an
+- <sup>[1](#fn1)</sup> <sup>[2](#fn2)</sup> On the Simple Item Record page, against any author which has an
   associated local.contributor.authorOrcidLookup field populated, add
   an ORCID icon with the associated ORCID-URL as a hyperlink. Note that
   the author list will be ordered the same as DSpace 5.9 normal behaviour
@@ -99,22 +101,23 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
   associated local.contributor.authorOrcidLookup field. [See
   webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl;
   webapps/xmlui/themes/Mirage2/images/orcid.png]
-- [%] On the Simple and Full Item Record pages, add a META-tag for
+- <sup>[1](#fn1)</sup> On the Simple and Full Item Record pages, add a META-tag for
   DC.relation with the content of the ORCID-URL for each
   local.contributor.authorOrcidLookup field. [See
   webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl]
-- [%] On OAI-PMH records for the "oai_dc" metadata format, add a
-  <dc:relation> field with the content of the ORCID-URL for each
-  local.contributor.authorOrcidLookup field. This was the field
+- <sup>[1](#fn1)</sup> On OAI-PMH records for the "oai_dc" metadata format, add a
+  &lt;dc:relation&gt; element with the content of the ORCID-URL for
+  each local.contributor.authorOrcidLookup field. This was the field
   and format recommended by [Trove](https://trove.nla.gov.au/)
   (as our institutional repository is harvested into Trove).
   [See config/crosswalks/oai/metadataFormats/oai_dc.xsl]
 
-Notes:
+### Notes
+<a name="fn1">1</a>: Performed by a program within this Git repository.
 
-[%] = Done automatically via a program within this Git repository.
+<a name="fn2">2</a>: The ORCID 16x16 PNG icon was downloaded from [here](https://orcid.org/trademark-and-id-display-guidelines).
 
-See screenshot...
+3: See screenshot...
 
 ### Benefits
 - Complies with NHMRC requirements above.
@@ -128,18 +131,18 @@ See screenshot...
   local.contributor.authorOrcidLookup field).
 - The messy local.contributor.authorOrcidLookup field does not appear
   *directly* in the Simple Item Record page, or any META-tags or any
-  OAI-PMH <dc:relation> fields. (As expected, it does appear in the
-  Full Item Record page in the list of metadata fields.)
+  OAI-PMH &lt;dc:relation&gt; elements. (As expected, it does appear
+  in the Full Item Record page in the list of metadata fields.)
 
 ### Gotchas
 - Author names must match precisely in terms of case-sensitivity and the
-  position of characters including spaces, commas, etc.
+  position of characters including commas, leading/trailing space etc.
 - The order of DC.relation META-tags will be the same as the order of the
   local.contributor.authorOrcidLookup fields.
-- The order of <dc:relation> OAI-PMH XML fields will be the same as the
+- The order of &lt;dc:relation&gt; OAI-PMH XML elements will be the same as the
   order of the local.contributor.authorOrcidLookup fields.
-- Although these DC.relation META-tags and <dc:relation> OAI-PMH XML
-  fields (derived from the local.contributor.authorOrcidLookup field)
+- Although these DC.relation META-tags and &lt;dc:relation&gt; OAI-PMH XML
+  elements (derived from the local.contributor.authorOrcidLookup field)
   are available to machines (i.e. web crawlers and harvest clients) they
   do *not* exist within the DSpace database and hence do not exist within the
   [DSpace Intermediate Metadata](https://wiki.duraspace.org/display/DSPACE/DSpaceIntermediateMetadata)
@@ -147,10 +150,10 @@ See screenshot...
 ### OAI-PMH test procedure guideline
 1. Update oai_dc.xsl
 2. Restart tomcat (or other Java web server/Java Servlet Container running
-   DSpace). E.g. took 1-3 minutes
+   DSpace). E.g. takes 1-3 minutes
 3. Update your test record (in DSpace 5.9 XMLUI Mirage2)
-4. [dspace]/bin/dspace oai clean-cache  # Optional? E.g. took 6 seconds
-5. [dspace]/bin/dspace oai import -o > /dev/null  # E.g. took 12 seconds (but 35 minutes first time)
+4. [dspace]/bin/dspace oai clean-cache  # Optional? E.g. takes 6 seconds
+5. [dspace]/bin/dspace oai import -o > /dev/null  # E.g. takes 12 seconds (but took 35 minutes first time)
 6. View the OAI-PMH changes, e.g.
    https://dspace.example.com/oai/request?verb=ListRecords&metadataPrefix=oai_dc&set=com_123456789_36019
 
