@@ -6,7 +6,7 @@ FlindersDSpace-OrcidDisplay
 Workaround to display the ORCID® of any author (including the Chief
 Investigator A) in DSpace. 
 
-This Github repository supersedes [grantj-re3/FlindersDSpace-OrcidCIA](/grantj-re3/FlindersDSpace-OrcidCIA).
+This Github repository supersedes [grantj-re3/FlindersDSpace-OrcidCIA](https://github.com/grantj-re3/FlindersDSpace-OrcidCIA).
 
 ## Background
 
@@ -75,6 +75,7 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
 
 ### How it works
 - Enter the (ordered) list of authors as usual.
+
 - For each author to be associated with an ORCID (e.g. Chief Investigators
   and/or authors at your institution) enter a separate field
   (local.contributor.authorOrcidLookup) containing the ORCID-URL with
@@ -86,36 +87,48 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
   new field (we only want the ORCID-URL component from this field to
   appear *indirectly*) the new field was created within a different
   schema (i.e. "local").
+
 - <sup>[1](#fn1)</sup> In the data entry submission form, add the
   local.contributor.authorOrcidLookup entry-field directly beneath
   the author entry-field so it is easy to copy-and-paste author names
   from one field to the other (since they must be identical for the
-  lookup-by-author key to behave correctly). [See config/input-forms.xml]
-- <sup>[1](#fn1)</sup> <sup>[2](#fn2)</sup> On the Simple Item Record page, against any author which has an
+  lookup-by-author key to behave correctly).
+
+- <sup>[2](#fn2)</sup> <sup>[3](#fn3)</sup> On the Simple Item Record page, against any author which has an
   associated local.contributor.authorOrcidLookup field populated, add
   an ORCID icon with the associated ORCID-URL as a hyperlink. Note that
   the author list will be ordered the same as DSpace 5.9 normal behaviour
   and is not influenced by the order of the
   local.contributor.authorOrcidLookup fields. Note that it is ok for
   zero, one, a few or all authors to have an
-  associated local.contributor.authorOrcidLookup field. [See
-  webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl;
-  webapps/xmlui/themes/Mirage2/images/orcid.png]
-- <sup>[1](#fn1)</sup> On the Simple and Full Item Record pages, add a META-tag for
+  associated local.contributor.authorOrcidLookup field.
+
+- <sup>[4](#fn4)</sup> On the Simple and Full Item Record pages, add a META-tag for
   DC.relation with the content of the ORCID-URL for each
-  local.contributor.authorOrcidLookup field. [See
-  webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl]
-- <sup>[1](#fn1)</sup> On OAI-PMH records for the "oai_dc" metadata format, add a
+  local.contributor.authorOrcidLookup field.
+
+- <sup>[5](#fn5)</sup> On OAI-PMH records for the "oai_dc" metadata format, add a
   &lt;dc:relation&gt; element with the content of the ORCID-URL for
   each local.contributor.authorOrcidLookup field. This was the field
   and format recommended by [Trove](https://trove.nla.gov.au/)
   (as our institutional repository is harvested into Trove).
-  [See config/crosswalks/oai/metadataFormats/oai_dc.xsl]
 
 ### Notes
 <a name="fn1">1</a>: Performed by a program within this Git repository.
+See [config/input-forms.xml](config/input-forms.xml)
 
-<a name="fn2">2</a>: The ORCID 16x16 PNG icon was downloaded from [here](https://orcid.org/trademark-and-id-display-guidelines).
+<a name="fn2">2</a>: Performed by a program within this Git repository.
+See webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl;
+webapps/xmlui/themes/Mirage2/images/orcid.png
+
+<a name="fn3">3</a>: The ORCID 16x16 PNG icon was downloaded from
+[here](https://orcid.org/trademark-and-id-display-guidelines).
+
+<a name="fn4">4</a>: Performed by a program within this Git repository.
+See webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl
+
+<a name="fn5">5</a>: Performed by a program within this Git repository.
+See config/crosswalks/oai/metadataFormats/oai_dc.xsl
 
 3: See screenshot...
 
