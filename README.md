@@ -118,17 +118,17 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
 See [config/input-forms.xml](config/input-forms.xml)
 
 <a name="fn2">2</a>: Performed by a program within this Git repository.
-See webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl;
-webapps/xmlui/themes/Mirage2/images/orcid.png
+See [webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl](webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl);
+[webapps/xmlui/themes/Mirage2/images/orcid.png](webapps/xmlui/themes/Mirage2/images/orcid.png)
 
 <a name="fn3">3</a>: The ORCID 16x16 PNG icon was downloaded from
 [here](https://orcid.org/trademark-and-id-display-guidelines).
 
 <a name="fn4">4</a>: Performed by a program within this Git repository.
-See webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl
+See [webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl](webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl)
 
 <a name="fn5">5</a>: Performed by a program within this Git repository.
-See config/crosswalks/oai/metadataFormats/oai_dc.xsl
+See [config/crosswalks/oai/metadataFormats/oai_dc.xsl](config/crosswalks/oai/metadataFormats/oai_dc.xsl)
 
 3: See screenshot...
 
