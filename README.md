@@ -21,6 +21,15 @@ The NHMRC have also confirmed on the CAIRSS list that they:
 
 > "... require the ORCID of the CIA to be displayed"
 
+The Australian Research Council have specified something similar in
+the document *ARC Open Access Policy Version 2017.1, section 6.3.2*:
+
+> Metadata should also contain other relevant information as
+> applicable and appropriate to the Research Output including,
+> but not limited to: ... the ORCID identifier for the author
+> responsible for providing the Research Output (to be made
+> Openly Accessible).
+
 However, despite the fact that DSpace 5 and 6 include ORCID authority
 control integration, that integration does *not* display the ORCID hence
 cannot comply with the above statements. (There have also been some
@@ -41,6 +50,7 @@ Desirable features:
 References:
 - https://www.nhmrc.gov.au/grants-funding/policy/nhmrc-open-access-policy
 - https://www.nhmrc.gov.au/_files_nhmrc/file/research/nhmrc_open_access_policy_15_january_2018_v2.pdf
+- https://www.arc.gov.au/policies-strategies/policy/arc-open-access-policy-version-20171
 - https://groups.google.com/forum/#!topic/dspace-tech/HO_4e-WYjjo
 - https://jira.duraspace.org/browse/DS-3447
 - https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
@@ -74,9 +84,11 @@ References:
 applicable to your DSpace 5.9 XMLUI Mirage 2 site.
 
 ### How it works
-- Enter the (ordered) list of authors as usual.
+- <sup>[1](#fnote1)</sup>
+  Enter the (ordered) list of authors as usual.
 
-- For each author to be associated with an ORCID (e.g. Chief Investigators
+- <sup>[1](#fnote1)</sup>
+  For each author to be associated with an ORCID (e.g. Chief Investigators
   and/or authors at your institution) enter a separate field
   (local.contributor.authorOrcidLookup) containing the ORCID-URL with
   author as the lookup key in the format "AUTHOR: ORCID-URL" (where colon
@@ -88,13 +100,15 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
   appear *indirectly*) the new field was created within a different
   schema (i.e. "local").
 
-- <sup>[1](#fn1)</sup> In the data entry submission form, add the
+- <sup>[2](#fnote2)</sup>
+  In the data entry submission form, add the
   local.contributor.authorOrcidLookup entry-field directly beneath
   the author entry-field so it is easy to copy-and-paste author names
   from one field to the other (since they must be identical for the
   lookup-by-author key to behave correctly).
 
-- <sup>[2](#fn2)</sup> <sup>[3](#fn3)</sup> On the Simple Item Record page, against any author which has an
+- <sup>[3](#fnote3)</sup> <sup>[4](#fnote4)</sup>
+  On the Simple Item Record page, against any author which has an
   associated local.contributor.authorOrcidLookup field populated, add
   an ORCID icon with the associated ORCID-URL as a hyperlink. Note that
   the author list will be ordered the same as DSpace 5.9 normal behaviour
@@ -103,37 +117,41 @@ applicable to your DSpace 5.9 XMLUI Mirage 2 site.
   zero, one, a few or all authors to have an
   associated local.contributor.authorOrcidLookup field.
 
-- <sup>[4](#fn4)</sup> On the Simple and Full Item Record pages, add a META-tag for
+- <sup>[5](#fnote5)</sup>
+  On the Simple and Full Item Record pages, add a META-tag for
   DC.relation with the content of the ORCID-URL for each
   local.contributor.authorOrcidLookup field.
 
-- <sup>[5](#fn5)</sup> On OAI-PMH records for the "oai_dc" metadata format, add a
+- <sup>[6](#fnote6)</sup>
+  On OAI-PMH records for the "oai_dc" metadata format, add a
   &lt;dc:relation&gt; element with the content of the ORCID-URL for
   each local.contributor.authorOrcidLookup field. This was the field
   and format recommended by [Trove](https://trove.nla.gov.au/)
   (as our institutional repository is harvested into Trove).
 
 ### Notes
-<a name="fn1">1</a>: Performed by a program within this Git repository.
+<a name="fnote1">1</a>: Performed by a DSpace user.
+
+<a name="fnote2">2</a>: Performed by a program within this Git repository.
 See [config/input-forms.xml](config/input-forms.xml)
 
-<a name="fn2">2</a>: Performed by a program within this Git repository.
+<a name="fnote3">3</a>: Performed by a program within this Git repository.
 See [webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl](webapps/xmlui/themes/Mirage2/xsl/aspect/artifactbrowser/item-view.xsl);
 [webapps/xmlui/themes/Mirage2/images/orcid.png](webapps/xmlui/themes/Mirage2/images/orcid.png)
 
-<a name="fn3">3</a>: The ORCID 16x16 PNG icon was downloaded from
+<a name="fnote4">4</a>: The ORCID 16x16 PNG icon was downloaded from
 [here](https://orcid.org/trademark-and-id-display-guidelines).
 
-<a name="fn4">4</a>: Performed by a program within this Git repository.
+<a name="fnote5">5</a>: Performed by a program within this Git repository.
 See [webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl](webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl)
 
-<a name="fn5">5</a>: Performed by a program within this Git repository.
+<a name="fnote6">6</a>: Performed by a program within this Git repository.
 See [config/crosswalks/oai/metadataFormats/oai_dc.xsl](config/crosswalks/oai/metadataFormats/oai_dc.xsl)
 
-3: See screenshot...
+7: See screenshot...
 
 ### Benefits
-- Complies with NHMRC requirements above.
+- Complies with NHMRC/ARC requirements above.
 - On the Simple Item Record page, the addition of ORCID info does not use
   much web-page realestate.
 - The ORCID and hyperlink is easily visible via the human user interface.
