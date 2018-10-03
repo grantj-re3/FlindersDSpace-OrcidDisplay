@@ -6,8 +6,6 @@ FlindersDSpace-OrcidDisplay
 Workaround to display the ORCID® of any author (including the Chief
 Investigator A) in DSpace. 
 
-This Github repository supersedes [grantj-re3/FlindersDSpace-OrcidCIA](https://github.com/grantj-re3/FlindersDSpace-OrcidCIA).
-
 ## Background
 
 The Australian NHMRC have specified the following in the document *National
@@ -148,7 +146,7 @@ See [webapps/xmlui/themes/Mirage2/xsl/core/page-structure.xsl](webapps/xmlui/the
 <a name="fnote6">6</a>: Performed by a program within this Git repository.
 See [config/crosswalks/oai/metadataFormats/oai_dc.xsl](config/crosswalks/oai/metadataFormats/oai_dc.xsl)
 
-7: See screenshot...
+7: See the [screenshots](dspaceOrcidDisplay.pdf)
 
 ### Benefits
 - Complies with NHMRC/ARC requirements above.
@@ -187,4 +185,8 @@ See [config/crosswalks/oai/metadataFormats/oai_dc.xsl](config/crosswalks/oai/met
 5. [dspace]/bin/dspace oai import -o > /dev/null  # E.g. takes 12 seconds (but took 35 minutes first time)
 6. View the OAI-PMH changes, e.g.
    https://dspace.example.com/oai/request?verb=ListRecords&metadataPrefix=oai_dc&set=com_123456789_36019
+
+## Related repositories
+- This Github repository supersedes [grantj-re3/FlindersDSpace-OrcidCIA](https://github.com/grantj-re3/FlindersDSpace-OrcidCIA).
+- [The DSpace digital asset management system](https://github.com/DSpace/DSpace)
 
